@@ -8,7 +8,7 @@ import json
 ROOT = "C:/Users/kowen/OneDrive - University of Alberta/Projects/GoalGuru/local"
 data_path = os.path.join(ROOT, "data")  # Path to folder to store data from running model
 OUTPUT_PATH = os.path.join(ROOT, "data", "stats.json")
-stats = {"hand_dist": [], "feet_dist": [], "rotation_sequence": []}
+stats = {"hand_dist": [], "feet_dist": [], "hand_velocity": [], "rotation_sequence": []}
 FOLDER = os.path.join(data_path, "poses")
 POSES = [os.path.join(FOLDER, file) for file in os.listdir(FOLDER) if file.endswith(".json")]
 
@@ -45,21 +45,22 @@ def main():
 
                 # Previous frame vectors
                 lh_0 = np.array(past_landmark["LEFT_WRIST"])
-                
+                rh_0 = np.array(past_landmark["RIGHT_WRIST"])
 
+                # Current frame vectors
+                lh_1 = np.array(landmark["LEFT_WRIST"])
+                rh_1 = np.array(landmark["RIGHT_WRIST"])
 
+                stats["hand_velocity"].append(vector_distance(lh_1, lh_0) + vector_distance(rh_1, rh_0))
 
             #feet distance calculations
             l_foot = np.array(landmark["LEFT_ANKLE"])
             r_foot = np.array(landmark["RIGHT_ANKLE"])
             stats["feet_dist"].append(feet_dist(l_foot, r_foot, shoulder_width))
-            
-
 
             #rotational sequence calculations
             if i == 0:
                 continue
-            
             else:
                 if (i-1) in skip: #handle missing frames for angular displacement calculations
                     for j in range(i, skip[0], -1):
