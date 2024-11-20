@@ -31,7 +31,7 @@ def main():
             hand1 = np.array(landmark["LEFT_WRIST"])
             hand2 = np.array(landmark["RIGHT_WRIST"])
             shoulder_width = vector_distance(np.array(landmark["LEFT_SHOULDER"]), np.array(landmark["RIGHT_SHOULDER"]))
-            stats["hand_dist"].append(hand_dist(hand1, hand2, shoulder_width))
+            stats["hand_dist"].append(hand_dist(hand1, hand2))
 
             #hand velocity calculations
             if i == 0:
@@ -89,7 +89,7 @@ def main():
                 
                 stats["rotation_sequence"].append(rotation_sequence((sh_1, sh_0), (la_1, la_0), (ra_1, ra_0), (h_1, h_0)))
 
-        save_json(stats, os.path.join(OUTPUT_PATH, str(data_nbr)))
+        save_json(stats, os.path.join(OUTPUT_PATH, f"{data_nbr}.json"))
 
 
 def vector_distance(vec1, vec2):
@@ -98,12 +98,12 @@ def vector_distance(vec1, vec2):
     '''
     return np.linalg.norm(vec1 - vec2)
 
-def hand_dist(hand1, hand2, shoulder_width):
+def hand_dist(hand1, hand2):
     '''
     calculate dist of left and right hands in proportion to shoulder width
     shoulder width is approx. 1/4 height
     '''
-    return vector_distance(hand1, hand2) / shoulder_width
+    return vector_distance(hand1, hand2)
 
 def hand_velocity(hand1, hand2, delta_t):
     '''

@@ -12,8 +12,13 @@ data_path = os.path.join(ROOT, "data")  # Path to folder to store data from runn
 json_output_path = os.path.join(data_path, "poses")  # Folder for saving JSON data
 data = {}
 
-FOLDER = "C:/Users/kowen/OneDrive - University of Alberta/Projects/GoalGuru/UVic_data/P6"
-VIDEOS = [os.path.join(FOLDER, file) for file in os.listdir(FOLDER) if file.endswith(".mp4")]
+FOLDER = "C:/Users/kowen/OneDrive - University of Alberta/Projects/GoalGuru/UVic_data/P11/P11"
+VIDEOS = [
+    os.path.join(FOLDER, file) 
+    for file in sorted(os.listdir(FOLDER)) 
+    if file.endswith(".mp4")
+]
+print(VIDEOS)
 
 # Write pose landmarks to dictionary
 def write_landmarks_to_dict(landmarks, frame_number, data, delta_t, world=False):
@@ -52,7 +57,7 @@ def main():
 
     os.makedirs(json_output_path, exist_ok=True)  # Ensure output directory exists
 
-    for data_nbr, video in enumerate(VIDEOS, start=51):
+    for data_nbr, video in enumerate(VIDEOS, start=102):
         # Open the video file
         cap = cv2.VideoCapture(video)
         cv2.namedWindow('MediaPipe Pose', cv2.WINDOW_NORMAL)
@@ -104,7 +109,6 @@ def main():
 
         # Save JSON for this video
         video_data["tot_frames"] = frame_number
-        video_data["fps"] = fps
         json_file_path = os.path.join(json_output_path, f"pose_data_{data_nbr}.json")
         save_json(video_data, json_file_path)
 
