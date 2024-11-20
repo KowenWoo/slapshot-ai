@@ -7,10 +7,11 @@ import json
 #coords path
 ROOT = "C:/Users/kowen/OneDrive - University of Alberta/Projects/GoalGuru/local"
 data_path = os.path.join(ROOT, "data")  # Path to folder to store data from running model
-OUTPUT_PATH = os.path.join(ROOT, "data", "stats.json")
-stats = {"hand_dist": [], "feet_dist": [], "hand_velocity": [], "rotation_sequence": []}
+OUTPUT_PATH = os.path.join(ROOT, "data/stats")
+stats = {"hand_dist": [], "feet_dist": [], "hand_velocity_r": [], "hand_velocity_l": [], "rotation_sequence": []}
 FOLDER = os.path.join(data_path, "poses")
 POSES = [os.path.join(FOLDER, file) for file in os.listdir(FOLDER) if file.endswith(".json")]
+FPS = 30
 
 def main():
     for data_nbr, coords in enumerate(POSES, start=1):
@@ -51,12 +52,16 @@ def main():
                 lh_1 = np.array(landmark["LEFT_WRIST"])
                 rh_1 = np.array(landmark["RIGHT_WRIST"])
 
-                stats["hand_velocity"].append(vector_distance(lh_1, lh_0) + vector_distance(rh_1, rh_0))
+                stats["hand_velocity_l"].append(hand_velocity(lh_1, lh_0, 1/FPS))
+                stats["hand_velocity_r"].append(hand_velocity(rh_1, rh_0, 1/FPS))
 
             #feet distance calculations
             l_foot = np.array(landmark["LEFT_ANKLE"])
             r_foot = np.array(landmark["RIGHT_ANKLE"])
             stats["feet_dist"].append(feet_dist(l_foot, r_foot, shoulder_width))
+
+            #feet orientation
+            
 
             #rotational sequence calculations
             if i == 0:
@@ -84,7 +89,8 @@ def main():
                 
                 stats["rotation_sequence"].append(rotation_sequence((sh_1, sh_0), (la_1, la_0), (ra_1, ra_0), (h_1, h_0)))
 
-        save_json(stats, OUTPUT_PATH)
+        save_json(stats, os.path.join(OUTPUT_PATH, str(data_nbr)))
+
 
 def vector_distance(vec1, vec2):
     '''
@@ -98,6 +104,12 @@ def hand_dist(hand1, hand2, shoulder_width):
     shoulder width is approx. 1/4 height
     '''
     return vector_distance(hand1, hand2) / shoulder_width
+
+def hand_velocity(hand1, hand2, delta_t):
+    '''
+    calculate velocity of hands
+    '''
+    return vector_distance(hand1, hand2) / delta_t
 
 def feet_dist(foot1, foot2, shoulder_width):
     '''
@@ -119,10 +131,6 @@ def rotation_sequence(shoulders, l_arm, r_arm, hips):
     ra_ra = rotation_angle(r_arm[1], r_arm[0])
     h_ra = rotation_angle(hips[1], hips[0])
     return (s_ra, la_ra, ra_ra, h_ra)
-    
-
-# def vector_displacement(vec1, vec2):
-#     return sqrt((vec1[0] - vec2[0])**2 + (vec1[1] - vec2[1])**2)
 
 def rotation_angle(vec1, vec2):
     '''
