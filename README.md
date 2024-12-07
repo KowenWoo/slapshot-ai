@@ -12,3 +12,9 @@ GoalGuru is a Slapshot analysis and classification pipeline created for the 2024
 - Develop a mobile app for real-time shot recording, analysis, and progress tracking.
 - Deliver advanced feedback for targeted improvements in player performance.
 
+# Pipeline and File Organization Specifics
+The pipeline works in order of these files:
+1. pose_est.py: takes clipped_frames directory as input, runs pose estimation per frame, and outputs the coordinates as a json file.
+2. stats.py: takes poses outputted from pose_est.py and computes stats which are then outputted as a json file.
+3. log_reg.py: takes stats files as input, preprocesses into time series data (matrix of shape 70, 20, 8 for training, 40, 20, 8 for testing), and runs the data through a model of your choice.
+  - NOTE: LSTM runs with highest accuracy.
